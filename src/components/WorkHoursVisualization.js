@@ -41,13 +41,14 @@ const WorkHoursVisualization = () => {
 
   useEffect(() => {
     const applyTheme = () => {
-      if (colorMode === 'dark' || (colorMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      const isDark = colorMode === 'dark' || (colorMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (isDark) {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
       }
     };
-    
+
     applyTheme();
     setCookie('colorMode', colorMode, 365); // Save preference for 1 year
 
@@ -301,7 +302,7 @@ const WorkHoursVisualization = () => {
               </tbody>
             </table>
           ) : (
-            <TableVisualization data={workHours} isDarkMode={isDarkMode} />
+            <TableVisualization data={workHours} colorMode={colorMode} />
           )}
         </>
       )}

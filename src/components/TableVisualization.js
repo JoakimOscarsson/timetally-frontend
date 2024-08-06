@@ -1,6 +1,8 @@
 import React from 'react';
 
-const TableVisualization = ({ data, isDarkMode }) => {
+
+const TableVisualization = ({ data, colorMode }) => {
+  const isDarkMode = colorMode === 'dark' || (colorMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const processData = () => {
     const structuredData = [];
     Object.entries(data).forEach(([year, yearData]) => {
