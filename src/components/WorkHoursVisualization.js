@@ -4,11 +4,13 @@ import { Button } from "./ui/button";
 import { Alert, AlertDescription } from "./ui/alert";
 import ExpandableRow from './ExpandableRow';
 import TableVisualization from './TableVisualization';
-import { formatDateForInput, formatDateForAPI } from '../utils/dateUtils';
+import { formatDateForInput, formatDateForAPI, isValidDate } from '../utils/dateUtils';
 
 const WorkHoursVisualization = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [startDateText, setStartDateText] = useState('');
+  const [endDateText, setEndDateText] = useState('');
   const [workHours, setWorkHours] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,23 +18,44 @@ const WorkHoursVisualization = () => {
 
   useEffect(() => {
     const today = new Date();
-    const oneWeekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const oneWeekFromNow = new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000);
     
     setStartDate(formatDateForInput(today));
     setEndDate(formatDateForInput(oneWeekFromNow));
+    setStartDateText(formatDateForInput(today));
+    setEndDateText(formatDateForInput(oneWeekFromNow));
   }, []);
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
-    e.target.blur();
+    setStartDateText(e.target.value);
   };
 
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
-    e.target.blur();
+    setEndDateText(e.target.value);
+  };
+
+  const handleStartDateTextChange = (e) => {
+    setStartDateText(e.target.value);
+    if (isValidDate(e.target.value)) {
+      setStartDate(e.target.value);
+    }
+  };
+
+  const handleEndDateTextChange = (e) => {
+    setEndDateText(e.target.value);
+    if (isValidDate(e.target.value)) {
+      setEndDate(e.target.value);
+    }
   };
 
   const fetchWorkHours = async () => {
+    if (!isValidDate(startDate) || !isValidDate(endDate)) {
+      setError('Please enter valid dates in the format YYYY-MM-DD');
+      return;
+    }
+
     const formattedStartDate = formatDateForAPI(startDate);
     const formattedEndDate = formatDateForAPI(endDate);
     
@@ -106,8 +129,8 @@ const WorkHoursVisualization = () => {
             </p>
             <ul className="list-disc list-inside mt-2 text-sm text-blue-700">
               <li>Weekends</li>
-              <li>Swedish public holidays (including the Swedish National Day)</li>
-              <li>Common non-working days (Easter Eve, Midsummer Eve, Christmas Eve, and New Year's Eve)</li>
+              <li>Swedish public holidays</li>
+              <li>Common Swedish non-working days (Easter Eve, Midsummer Eve, Christmas Eve, and New Year's Eve)</li>
               <li>If the Swedish National Day (June 6th) falls on a weekend, the preceding Friday is treated as a non-working day</li>
             </ul>
             <p className="text-sm text-blue-700 mt-2">
@@ -120,31 +143,52 @@ const WorkHoursVisualization = () => {
       <div className="mb-4 flex space-x-4">
         <div className="flex-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-          <div className="relative">
+          <div className="relative flex">
             <input
-              type="date"
-              value={startDate}
-              onChange={handleStartDateChange}
-              className="border border-gray-300 rounded px-3 py-2 w-full text-sm pr-10"
+              type="text"
+              value={startDateText}
+              onChange={handleStartDateTextChange}
+              placeholder="YYYY-MM-DD"
+              className="border border-gray-300 rounded-l px-3 py-2 w-full text-sm"
             />
-            <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <div className="relative">
+              <input
+                type="date"
+                value={startDate}
+                onChange={handleStartDateChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+              <div className="bg-gray-100 border border-gray-300 rounded-r px-3 py-2 flex items-center">
+                <Calendar className="text-gray-400" size={16} />
+              </div>
+            </div>
           </div>
         </div>
         <div className="flex-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-          <div className="relative">
+          <div className="relative flex">
             <input
-              type="date"
-              value={endDate}
-              onChange={handleEndDateChange}
-              min={startDate}
-              className="border border-gray-300 rounded px-3 py-2 w-full text-sm pr-10"
+              type="text"
+              value={endDateText}
+              onChange={handleEndDateTextChange}
+              placeholder="YYYY-MM-DD"
+              className="border border-gray-300 rounded-l px-3 py-2 w-full text-sm"
             />
-            <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <div className="relative">
+              <input
+                type="date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+              <div className="bg-gray-100 border border-gray-300 rounded-r px-3 py-2 flex items-center">
+                <Calendar className="text-gray-400" size={16} />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      
+      </div>     
+ 
       <div className="flex justify-between items-center mb-4">
         <Button onClick={fetchWorkHours} className="flex-grow mr-2" disabled={isLoading}>
           {isLoading ? 'Loading...' : 'Get Work Hours'}
