@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, InfoIcon } from 'lucide-react';
+import { Calendar, InfoIcon, Sun, Moon } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Alert, AlertDescription } from "./ui/alert";
 import ExpandableRow from './ExpandableRow';
@@ -15,6 +15,7 @@ const WorkHoursVisualization = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [visualizationType, setVisualizationType] = useState('table');
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const today = new Date();
@@ -85,9 +86,9 @@ const WorkHoursVisualization = () => {
     return Object.entries(weekData)
       .filter(([key]) => key.startsWith("week"))
       .map(([week, hours]) => (
-        <tr key={week} className="hover:bg-gray-50">
-          <td className="p-2 border pl-12">{week}</td>
-          <td className="p-2 border text-right">{hours}</td>
+        <tr key={week} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td className="p-2 border pl-12 dark:border-gray-700">{week}</td>
+          <td className="p-2 border text-right dark:border-gray-700">{hours}</td>
         </tr>
       ));
   };
@@ -116,27 +117,44 @@ const WorkHoursVisualization = () => {
     setVisualizationType(prev => prev === 'expandable' ? 'table' : 'expandable');
   };
 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">Time-Tally</h1>
-      
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+    <div className={`container mx-auto p-4 ${isDarkMode ? 'dark' : ''}`}>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-bold text-center dark:text-white">Time-Tally</h1>
+        <Button onClick={toggleTheme} className="p-2 rounded-full">
+          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </Button>
+      </div>
+
+      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 dark:bg-gray-800 dark:border-blue-400">
         <div className="flex">
           <div className="flex-shrink-0">
-            <InfoIcon className="h-5 w-5 text-blue-500" />
+            <InfoIcon className="h-5 w-5 text-blue-500 dark:text-blue-400" />
           </div>
           <div className="ml-3">
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-blue-700 dark:text-gray-300">
               This application displays the total number of work hours for a specified time period. The weeks shown align with Unit4's report periods. The calculation takes into account:
             </p>
-            <ul className="list-disc list-inside mt-2 text-sm text-blue-700">
+            <ul className="list-disc list-inside mt-2 text-sm text-blue-700 dark:text-gray-300">
               <li>Weekends</li>
               <li>Swedish public holidays</li>
               <li>Common Swedish non-working days (Midsummer Eve and Christmas Eve)</li>
               <li>If the Swedish National Day (June 6th) falls on a weekend, the preceding Friday is treated as a non-working day</li>
               <li>Bridge days are treated as working days</li>
             </ul>
-            <p className="text-sm text-blue-700 mt-2">
+            <p className="text-sm text-blue-700 dark:text-gray-300 mt-2">
               Please note: Due to the method used for estimating Easter, calculations may be inaccurate for dates beyond the year 2100.
             </p>
           </div>
@@ -145,14 +163,14 @@ const WorkHoursVisualization = () => {
 
       <div className="mb-4 flex space-x-4">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
           <div className="relative flex">
             <input
               type="text"
               value={startDateText}
               onChange={handleStartDateTextChange}
               placeholder="YYYY-MM-DD"
-              className="border border-gray-300 rounded-l px-3 py-2 w-full text-sm"
+              className="border border-gray-300 rounded-l px-3 py-2 w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
             <div className="relative">
               <input
@@ -161,21 +179,21 @@ const WorkHoursVisualization = () => {
                 onChange={handleStartDateChange}
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
-              <div className="bg-gray-100 border border-gray-300 rounded-r px-3 py-2 flex items-center">
-                <Calendar className="text-gray-400" size={16} />
+              <div className="bg-gray-100 border border-gray-300 rounded-r px-3 py-2 flex items-center dark:bg-gray-600 dark:border-gray-500">
+                <Calendar className="text-gray-400 dark:text-gray-300" size={16} />
               </div>
             </div>
           </div>
         </div>
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
           <div className="relative flex">
             <input
               type="text"
               value={endDateText}
               onChange={handleEndDateTextChange}
               placeholder="YYYY-MM-DD"
-              className="border border-gray-300 rounded-l px-3 py-2 w-full text-sm"
+              className="border border-gray-300 rounded-l px-3 py-2 w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
             <div className="relative">
               <input
@@ -184,8 +202,8 @@ const WorkHoursVisualization = () => {
                 onChange={handleEndDateChange}
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
-              <div className="bg-gray-100 border border-gray-300 rounded-r px-3 py-2 flex items-center">
-                <Calendar className="text-gray-400" size={16} />
+              <div className="bg-gray-100 border border-gray-300 rounded-r px-3 py-2 flex items-center dark:bg-gray-600 dark:border-gray-500">
+                <Calendar className="text-gray-400 dark:text-gray-300" size={16} />
               </div>
             </div>
           </div>
@@ -210,13 +228,13 @@ const WorkHoursVisualization = () => {
 
       {workHours && (
         <>
-          <h2 className="text-xl font-semibold mb-2">Total Hours: {workHours.total}</h2>
+          <h2 className="text-xl font-semibold mb-2 dark:text-white">Total Hours: {workHours.total}</h2>
           {visualizationType === 'expandable' ? (
-            <table className="w-full border-collapse border">
+            <table className="w-full border-collapse border dark:border-gray-700">
               <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-2 border text-left">Period</th>
-                  <th className="p-2 border text-right">Hours</th>
+                <tr className="bg-gray-200 dark:bg-gray-800">
+                  <th className="p-2 border text-left dark:border-gray-700 dark:text-white">Period</th>
+                  <th className="p-2 border text-right dark:border-gray-700 dark:text-white">Hours</th>
                 </tr>
               </thead>
               <tbody>
@@ -224,12 +242,12 @@ const WorkHoursVisualization = () => {
               </tbody>
             </table>
           ) : (
-            <TableVisualization data={workHours} />
+            <TableVisualization data={workHours} isDarkMode={isDarkMode} />
           )}
         </>
       )}
     </div>
   );
 };
-
+    
 export default WorkHoursVisualization;
