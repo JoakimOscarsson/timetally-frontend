@@ -3,7 +3,7 @@ import { Calendar, InfoIcon } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Alert, AlertDescription } from "./ui/alert";
 import ExpandableRow from './ExpandableRow';
-import { demoData } from '../data/demoData';
+import TableVisualization from './TableVisualization';
 import { formatDateForInput, formatDateForAPI } from '../utils/dateUtils';
 
 const WorkHoursVisualization = () => {
@@ -12,6 +12,7 @@ const WorkHoursVisualization = () => {
   const [workHours, setWorkHours] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [visualizationType, setVisualizationType] = useState('expandable');
 
   useEffect(() => {
     const today = new Date();
@@ -86,6 +87,10 @@ const WorkHoursVisualization = () => {
       ));
   };
 
+  const toggleVisualization = () => {
+    setVisualizationType(prev => prev === 'expandable' ? 'table' : 'expandable');
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4 text-center">Time-Tally</h1>
@@ -140,9 +145,15 @@ const WorkHoursVisualization = () => {
         </div>
       </div>
       
-      <Button onClick={fetchWorkHours} className="w-full mb-4">
-        Get Work Hours
-      </Button>
+      <div className="flex justify-between items-center mb-4">
+        <Button onClick={fetchWorkHours} className="flex-grow mr-2" disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Get Work Hours'}
+        </Button>
+        <Button onClick={toggleVisualization} className="flex-shrink-0">
+          Toggle View
+        </Button>
+      </div>
+
 
       {error && (
         <Alert variant="destructive" className="mb-4">
@@ -153,17 +164,21 @@ const WorkHoursVisualization = () => {
       {workHours && (
         <>
           <h2 className="text-xl font-semibold mb-2">Total Hours: {workHours.total}</h2>
-          <table className="w-full border-collapse border">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="p-2 border text-left">Period</th>
-                <th className="p-2 border text-right">Hours</th>
-              </tr>
-            </thead>
-            <tbody>
-              {renderYears()}
-            </tbody>
-          </table>
+          {visualizationType === 'expandable' ? (
+            <table className="w-full border-collapse border">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="p-2 border text-left">Period</th>
+                  <th className="p-2 border text-right">Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {renderYears()}
+              </tbody>
+            </table>
+          ) : (
+            <TableVisualization data={workHours} />
+          )}
         </>
       )}
     </div>
