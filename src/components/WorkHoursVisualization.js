@@ -14,7 +14,7 @@ const WorkHoursVisualization = () => {
   const [workHours, setWorkHours] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [visualizationType, setVisualizationType] = useState('expandable');
+  const [visualizationType, setVisualizationType] = useState('table');
 
   useEffect(() => {
     const today = new Date();
@@ -130,8 +130,9 @@ const WorkHoursVisualization = () => {
             <ul className="list-disc list-inside mt-2 text-sm text-blue-700">
               <li>Weekends</li>
               <li>Swedish public holidays</li>
-              <li>Common Swedish non-working days (Easter Eve, Midsummer Eve, Christmas Eve, and New Year's Eve)</li>
+              <li>Common Swedish non-working days (Midsummer Eve and Christmas Eve)</li>
               <li>If the Swedish National Day (June 6th) falls on a weekend, the preceding Friday is treated as a non-working day</li>
+              <li>Bridge days are treated as working days</li>
             </ul>
             <p className="text-sm text-blue-700 mt-2">
               Please note: Due to the method used for estimating Easter, calculations may be inaccurate for dates beyond the year 2100.
