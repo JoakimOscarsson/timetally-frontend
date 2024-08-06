@@ -36,4 +36,15 @@ module.exports = {
       template: './public/index.html',
     }),
   ],
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'https://timetally.gauffin-oscarsson.com',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+    historyApiFallback: true,
+    hot: true,
+  },
 };
