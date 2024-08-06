@@ -65,14 +65,16 @@ const WorkHoursVisualization = () => {
     
     try {
       const response = await fetch(`/api/v1/workhours?start=${formattedStartDate}&end=${formattedEndDate}`);
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch work hours');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch work hours');
       }
+      
       const data = await response.json();
       setWorkHours(data);
     } catch (err) {
-      setError('Error fetching work hours. Please try again.');
+      setError(err.message);
       console.error('Error:', err);
     } finally {
       setIsLoading(false);
