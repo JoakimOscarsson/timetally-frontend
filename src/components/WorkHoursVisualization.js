@@ -6,6 +6,20 @@ import ExpandableRow from './ExpandableRow';
 import TableVisualization from './TableVisualization';
 import { formatDateForInput, formatDateForAPI, isValidDate } from '../utils/dateUtils';
 
+// Cookie helper functions
+const setCookie = (name, value, days) => {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+};
+
+const getCookie = (name) => {
+  return document.cookie.split('; ').reduce((r, v) => {
+    const parts = v.split('=');
+    return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+  }, '');
+};
+
+
 const WorkHoursVisualization = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -16,6 +30,26 @@ const WorkHoursVisualization = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [visualizationType, setVisualizationType] = useState('table');
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedMode = getCookie('colorMode');
+    if (savedMode) {
+      setIsDarkMode(savedMode === 'dark');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    setCookie('colorMode', isDarkMode ? 'dark' : 'light', 365);
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   useEffect(() => {
     const today = new Date();
@@ -116,18 +150,6 @@ const WorkHoursVisualization = () => {
   const toggleVisualization = () => {
     setVisualizationType(prev => prev === 'expandable' ? 'table' : 'expandable');
   };
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
 
   return (
     <div className={`container mx-auto p-4 ${isDarkMode ? 'dark' : ''}`}>
