@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, InfoIcon, Sun, Moon } from 'lucide-react';
+import { Calendar, InfoIcon, Sun, Moon, Monitor, SunMedium } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Alert, AlertDescription } from "./ui/alert";
 import ExpandableRow from './ExpandableRow';
@@ -29,26 +29,58 @@ const WorkHoursVisualization = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [visualizationType, setVisualizationType] = useState('table');
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [colorMode, setColorMode] = useState('system');
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
     const savedMode = getCookie('colorMode');
     if (savedMode) {
-      setIsDarkMode(savedMode === 'dark');
+      setColorMode(savedMode);
     }
   }, []);
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    setCookie('colorMode', isDarkMode ? 'dark' : 'light', 365);
-  }, [isDarkMode]);
+    const applyTheme = () => {
+      if (colorMode === 'dark' || (colorMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+    
+    applyTheme();
+    setCookie('colorMode', colorMode, 365); // Save preference for 1 year
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (colorMode === 'system') {
+        applyTheme();
+      }
+    };
+
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
+  }, [colorMode]);
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+    setColorMode(prevMode => {
+      switch (prevMode) {
+        case 'light': return 'dark';
+        case 'dark': return 'system';
+        default: return 'light';
+      }
+    });
+  };
+
+  const getThemeIcon = () => {
+    if (!isHovering) {
+      return <SunMedium size={20} />;
+    }
+    switch (colorMode) {
+      case 'light': return <Sun size={20} />;
+      case 'dark': return <Moon size={20} />;
+      default: return <Monitor size={20} />;
+    }
   };
 
   useEffect(() => {
@@ -152,11 +184,16 @@ const WorkHoursVisualization = () => {
   };
 
   return (
-    <div className={`container mx-auto p-4 ${isDarkMode ? 'dark' : ''}`}>
+    <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold text-center dark:text-white">Time-Tally</h1>
-        <Button onClick={toggleTheme} className="p-2 rounded-full">
-          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+        <Button 
+          onClick={toggleTheme} 
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+          className="p-2 rounded-full"
+        >
+          {getThemeIcon()}
         </Button>
       </div>
 
