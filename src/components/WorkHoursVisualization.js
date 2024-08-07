@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, InfoIcon, Sun, Moon, Monitor, Table, ListCollapse } from 'lucide-react';
+import { Calendar, InfoIcon, Sun, Moon, Monitor, Table, ListCollapse, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Alert, AlertDescription } from "./ui/alert";
 import ExpandableRow from './ExpandableRow';
@@ -18,6 +18,54 @@ const getCookie = (name) => {
     const parts = v.split('=');
     return parts[0] === name ? decodeURIComponent(parts[1]) : r;
   }, '');
+};
+
+const InfoDisplay = () => {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  return (
+    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 dark:bg-gray-800 dark:border-blue-400 cursor-pointer" onClick={toggleExpand}>
+      <div className="flex justify-between items-start">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <InfoIcon className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm font-medium text-blue-700 dark:text-gray-300">
+              Work Hours Calculation Information
+            </p>
+          </div>
+        </div>
+        <div>
+          {isExpanded ? (
+            <ChevronUp className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+          ) : (
+            <ChevronDown className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+          )}
+        </div>
+      </div>
+      {isExpanded && (
+        <div className="mt-2">
+          <p className="text-sm text-blue-700 dark:text-gray-300">
+            This application displays the total number of work hours for a specified time period. The weeks shown align with Unit4's report periods. The calculation takes into account:
+          </p>
+          <ul className="list-disc list-inside mt-2 text-sm text-blue-700 dark:text-gray-300">
+            <li>Weekends</li>
+            <li>Swedish public holidays</li>
+            <li>Common Swedish non-working days (Midsummer Eve and Christmas Eve)</li>
+            <li>If the Swedish National Day (June 6th) falls on a weekend, the preceding Friday is treated as a non-working day</li>
+            <li>Bridge days are treated as working days</li>
+          </ul>
+          <p className="text-sm text-blue-700 dark:text-gray-300 mt-2">
+            Please note: Due to the method used for estimating Easter, calculations may be inaccurate for dates beyond the year 2100.
+          </p>
+        </div>
+      )}
+    </div>
+  );
 };
 
 
@@ -196,6 +244,7 @@ const WorkHoursVisualization = () => {
 
   return (
     <div className="container mx-auto p-4">
+      
       <div className="flex items-center justify-between mb-4 relative">
           <h1 className="text-3xl font-bold text-left dark:text-white md:hidden">
             Time-Tally
@@ -223,28 +272,7 @@ const WorkHoursVisualization = () => {
         </div>
       </div>
 
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 dark:bg-gray-800 dark:border-blue-400">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <InfoIcon className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-          </div>
-          <div className="ml-3">
-            <p className="text-sm text-blue-700 dark:text-gray-300">
-              This application displays the total number of work hours for a specified time period. The weeks shown align with Unit4's report periods. The calculation takes into account:
-            </p>
-            <ul className="list-disc list-inside mt-2 text-sm text-blue-700 dark:text-gray-300">
-              <li>Weekends</li>
-              <li>Swedish public holidays</li>
-              <li>Common Swedish non-working days (Midsummer Eve and Christmas Eve)</li>
-              <li>If the Swedish National Day (June 6th) falls on a weekend, the preceding Friday is treated as a non-working day</li>
-              <li>Bridge days are treated as working days</li>
-            </ul>
-            <p className="text-sm text-blue-700 dark:text-gray-300 mt-2">
-              Please note: Due to the method used for estimating Easter, calculations may be inaccurate for dates beyond the year 2100.
-            </p>
-          </div>
-        </div>
-      </div>
+      <InfoDisplay />
 
       <div className="mb-4 flex space-x-4">
         <div className="flex-1">
