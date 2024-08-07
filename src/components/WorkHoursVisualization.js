@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "./ui/alert";
 import ExpandableRow from './ExpandableRow';
 import TableVisualization from './TableVisualization';
 import { formatDateForInput, formatDateForAPI, isValidDate } from '../utils/dateUtils';
+import Tooltip from './Tooltip';
 
 // Cookie helper functions
 const setCookie = (name, value, days) => {
@@ -36,7 +37,16 @@ const WorkHoursVisualization = () => {
     if (savedMode) {
       setColorMode(savedMode);
     }
+
+    const savedVisualizationType = getCookie('visualizationType');
+    if (savedVisualizationType) {
+      setVisualizationType(savedVisualizationType);
+    }
   }, []);
+
+  useEffect(() => {
+    setCookie('visualizationType', visualizationType, 365);
+  }, [visualizationType]);
 
   useEffect(() => {
     const applyTheme = () => {
@@ -194,18 +204,22 @@ const WorkHoursVisualization = () => {
           Time-Tally
         </h1>
         <div className="flex justify-end space-x-2 flex-shrink-0">
-          <Button 
+          <Tooltip content={`Viewing as ${visualizationType === 'table' ? 'table' : 'list'}`}>
+            <Button 
               onClick={toggleVisualization}
               className="p-2 rounded-full"
-          >
-            {getViewIcon()}
-          </Button>
-          <Button 
-            onClick={toggleTheme} 
-            className="p-2 rounded-full"
-          >
-            {getThemeIcon()}
-          </Button>
+            >
+              {getViewIcon()}
+            </Button>
+          </Tooltip>
+          <Tooltip content={`Appearance set to ${colorMode}`}>
+            <Button 
+              onClick={toggleTheme} 
+              className="p-2 rounded-full"
+            >
+              {getThemeIcon()}
+            </Button>
+          </Tooltip>
         </div>
       </div>
 
@@ -241,7 +255,7 @@ const WorkHoursVisualization = () => {
               value={startDateText}
               onChange={handleStartDateTextChange}
               placeholder="YYYY-MM-DD"
-              className="border border-gray-300 rounded-l px-3 py-2 w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="border border-gray-300 rounded-l px-3 w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
             <div className="relative">
               <input
@@ -264,7 +278,7 @@ const WorkHoursVisualization = () => {
               value={endDateText}
               onChange={handleEndDateTextChange}
               placeholder="YYYY-MM-DD"
-              className="border border-gray-300 rounded-l px-3 py-2 w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="border border-gray-300 rounded-l px-3 w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
             <div className="relative">
               <input
@@ -282,7 +296,7 @@ const WorkHoursVisualization = () => {
       </div>     
  
       <div className="flex justify-between items-center mb-4">
-        <Button onClick={fetchWorkHours} className="flex-grow mr-2" disabled={isLoading}>
+        <Button onClick={fetchWorkHours} className="flex-grow" disabled={isLoading}>
           {isLoading ? 'Loading...' : 'Get Work Hours'}
         </Button>
       </div>
