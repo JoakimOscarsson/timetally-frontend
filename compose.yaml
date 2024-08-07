@@ -8,6 +8,8 @@ services:
     volumes:
       - ./src:/app/src
       - ./public:/app/public
+      - ./tailwind.config.js:/app/tailwind.config.js
+      - ./postcss.config.js:/app/postcss.config.js
     environment:
       - NODE_ENV=development
     command: npm run start

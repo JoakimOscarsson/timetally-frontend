@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
-const ExpandableRow = ({ label, hours, children, level = 0, defaultExpanded = false }) => {
+const ExpandableRow = ({ label, hours, children, level = 0, defaultExpanded = false, colorMode }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   const toggleExpand = () => setIsExpanded(!isExpanded);
+
+  const isDarkMode = colorMode === 'dark' || (colorMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
     <>

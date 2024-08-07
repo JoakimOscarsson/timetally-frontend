@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, InfoIcon, Sun, Moon, Monitor, SunMedium } from 'lucide-react';
+import { Calendar, InfoIcon, Sun, Moon, Monitor, Table, ListCollapse } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Alert, AlertDescription } from "./ui/alert";
 import ExpandableRow from './ExpandableRow';
@@ -30,7 +30,6 @@ const WorkHoursVisualization = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [visualizationType, setVisualizationType] = useState('table');
   const [colorMode, setColorMode] = useState('system');
-  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
     const savedMode = getCookie('colorMode');
@@ -74,9 +73,6 @@ const WorkHoursVisualization = () => {
   };
 
   const getThemeIcon = () => {
-    if (!isHovering) {
-      return <SunMedium size={20} />;
-    }
     switch (colorMode) {
       case 'light': return <Sun size={20} />;
       case 'dark': return <Moon size={20} />;
@@ -164,7 +160,7 @@ const WorkHoursVisualization = () => {
     return Object.entries(yearData)
       .filter(([key, value]) => key !== "total" && typeof value === "object")
       .map(([monthKey, monthData]) => (
-        <ExpandableRow key={monthKey} label={monthKey.split('-')[1]} hours={monthData.total} level={1}>
+        <ExpandableRow key={monthKey} label={monthKey.split('-')[1]} hours={monthData.total} level={1} colorMode={colorMode}>
           {renderWeeks(monthData)}
         </ExpandableRow>
       ));
@@ -174,7 +170,7 @@ const WorkHoursVisualization = () => {
     return Object.entries(workHours)
       .filter(([key, value]) => key !== "total" && typeof value === "object")
       .map(([year, yearData]) => (
-        <ExpandableRow key={year} label={year} hours={yearData.total} defaultExpanded={true}>
+        <ExpandableRow key={year} label={year} hours={yearData.total} colorMode={colorMode} defaultExpanded={true}>
           {renderMonths(yearData)}
         </ExpandableRow>
       ));
@@ -184,18 +180,33 @@ const WorkHoursVisualization = () => {
     setVisualizationType(prev => prev === 'expandable' ? 'table' : 'expandable');
   };
 
+  const getViewIcon = () => {
+    return visualizationType === 'table' ? <Table size={20} /> : <ListCollapse size={20} />;
+  };
+
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold text-center dark:text-white">Time-Tally</h1>
-        <Button 
-          onClick={toggleTheme} 
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-          className="p-2 rounded-full"
-        >
-          {getThemeIcon()}
-        </Button>
+      <div className="flex items-center justify-between mb-4 relative">
+          <h1 className="text-3xl font-bold text-left dark:text-white md:hidden">
+            Time-Tally
+          </h1>
+        <h1 className="text-3xl font-bold text-center dark:text-white absolute left-1/2 transform -translate-x-1/2 hidden md:block">
+          Time-Tally
+        </h1>
+        <div className="flex justify-end space-x-2 flex-shrink-0">
+          <Button 
+              onClick={toggleVisualization}
+              className="p-2 rounded-full"
+          >
+            {getViewIcon()}
+          </Button>
+          <Button 
+            onClick={toggleTheme} 
+            className="p-2 rounded-full"
+          >
+            {getThemeIcon()}
+          </Button>
+        </div>
       </div>
 
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 dark:bg-gray-800 dark:border-blue-400">
@@ -273,9 +284,6 @@ const WorkHoursVisualization = () => {
       <div className="flex justify-between items-center mb-4">
         <Button onClick={fetchWorkHours} className="flex-grow mr-2" disabled={isLoading}>
           {isLoading ? 'Loading...' : 'Get Work Hours'}
-        </Button>
-        <Button onClick={toggleVisualization} className="flex-shrink-0">
-          Toggle View
         </Button>
       </div>
 

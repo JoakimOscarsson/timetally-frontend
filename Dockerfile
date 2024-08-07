@@ -1,5 +1,5 @@
 # Build stage
-FROM --platform=$BUILDPLATFORM node:14-alpine AS build
+FROM --platform=$BUILDPLATFORM node:22.6.0-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
